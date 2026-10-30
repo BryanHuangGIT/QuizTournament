@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "910469749515",
+    "project_id": "quiztournament-d2a29",
+    "storage_bucket": "quiztournament-d2a29.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910469749515:android:649c2cda40e4f3a695a00e",
+        "android_client_info": {
+          "package_name": "com.example.quiztournament"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdX9BBgJxIGNVpp0Juqpkp5Lt5SD_mWs8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
