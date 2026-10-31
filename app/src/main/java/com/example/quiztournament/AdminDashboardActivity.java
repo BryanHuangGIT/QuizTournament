@@ -1,4 +1,3 @@
-
 package com.example.quiztournament;
 
 import android.content.Intent;
@@ -18,6 +17,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
 
     private Button buttonCreateTournament;
+    private Button buttonViewTournaments;
     private Button buttonLogout;
 
     @Override
@@ -31,10 +31,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
         buttonCreateTournament =
                 findViewById(R.id.buttonCreateTournament);
 
+        buttonViewTournaments =
+                findViewById(R.id.buttonViewTournaments);
+
         buttonLogout =
                 findViewById(R.id.buttonLogout);
 
         buttonCreateTournament.setEnabled(false);
+        buttonViewTournaments.setEnabled(false);
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
 
@@ -48,41 +52,39 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(document -> {
 
-                    if ("admin".equals(
-                            document.getString("role"))) {
+                    if ("admin".equals(document.getString("role"))) {
 
                         buttonCreateTournament.setEnabled(true);
+                        buttonViewTournaments.setEnabled(true);
 
                     } else {
 
-                        Toast.makeText(
-                                this,
+                        Toast.makeText(this,
                                 "Administrator access required",
-                                Toast.LENGTH_LONG
-                        ).show();
+                                Toast.LENGTH_LONG).show();
 
                         redirectToHome();
                     }
                 })
                 .addOnFailureListener(e -> {
 
-                    Toast.makeText(
-                            this,
+                    Toast.makeText(this,
                             "Unable to verify administrator",
-                            Toast.LENGTH_LONG
-                    ).show();
+                            Toast.LENGTH_LONG).show();
 
                     redirectToHome();
                 });
 
         buttonCreateTournament.setOnClickListener(v -> {
-
-            Intent intent = new Intent(
+            startActivity(new Intent(
                     AdminDashboardActivity.this,
-                    CreateTournamentActivity.class
-            );
+                    CreateTournamentActivity.class));
+        });
 
-            startActivity(intent);
+        buttonViewTournaments.setOnClickListener(v -> {
+            startActivity(new Intent(
+                    AdminDashboardActivity.this,
+                    ViewTournamentsActivity.class));
         });
 
         buttonLogout.setOnClickListener(v -> {

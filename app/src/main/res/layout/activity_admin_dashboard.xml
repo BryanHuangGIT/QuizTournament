@@ -30,6 +30,13 @@
         android:text="Create Tournament" />
 
     <Button
+        android:id="@+id/buttonViewTournaments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Tournaments"
+        android:layout_marginTop="12dp" />
+
+    <Button
         android:id="@+id/buttonLogout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
