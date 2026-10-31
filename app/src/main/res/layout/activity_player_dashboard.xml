@@ -13,15 +13,14 @@
         android:textSize="28sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="32dp" />
 
-    <TextView
+    <Button
+        android:id="@+id/buttonViewTournaments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome to Quiz Tournament!"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginBottom="24dp" />
+        android:text="View Tournaments"
+        android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/buttonLogout"
