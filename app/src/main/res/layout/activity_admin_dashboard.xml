@@ -13,7 +13,7 @@
         android:textSize="28sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="16dp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -24,9 +24,16 @@
         android:layout_marginBottom="24dp" />
 
     <Button
+        android:id="@+id/buttonCreateTournament"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create Tournament" />
+
+    <Button
         android:id="@+id/buttonLogout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Logout" />
+        android:text="Logout"
+        android:layout_marginTop="12dp" />
 
 </LinearLayout>
