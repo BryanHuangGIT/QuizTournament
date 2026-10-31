@@ -1,10 +1,15 @@
+
 package com.example.quiztournament;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,6 +22,8 @@ public class ViewTournamentsActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private LinearLayout tournamentContainer;
     private TextView textViewNoTournaments;
+
+    private boolean isAdmin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,13 +39,48 @@ public class ViewTournamentsActivity extends AppCompatActivity {
                 findViewById(R.id.textViewNoTournaments);
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            Toast.makeText(this, "Please log in first",
-                    Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        loadTournaments();
+        verifyAdmin();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (isAdmin) {
+            loadTournaments();
+        }
+    }
+
+    private void verifyAdmin() {
+
+        String uid = FirebaseAuth.getInstance()
+                .getCurrentUser().getUid();
+
+        firestore.collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(document -> {
+
+                    if ("admin".equals(document.getString("role"))) {
+                        isAdmin = true;
+                        loadTournaments();
+                    } else {
+                        Toast.makeText(this,
+                                "Administrator access required",
+                                Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this,
+                            "Unable to verify administrator",
+                            Toast.LENGTH_LONG).show();
+                    finish();
+                });
     }
 
     private void loadTournaments() {
@@ -46,74 +88,121 @@ public class ViewTournamentsActivity extends AppCompatActivity {
         firestore.collection("tournaments")
                 .orderBy("createdAt", Query.Direction.DESCENDING)
                 .get()
-                .addOnSuccessListener(querySnapshot -> {
+                .addOnSuccessListener(snapshot -> {
 
                     tournamentContainer.removeAllViews();
 
-                    if (querySnapshot.isEmpty()) {
-                        textViewNoTournaments.setVisibility(
-                                android.view.View.VISIBLE);
+                    if (snapshot.isEmpty()) {
+                        textViewNoTournaments.setVisibility(View.VISIBLE);
                         return;
                     }
 
-                    textViewNoTournaments.setVisibility(
-                            android.view.View.GONE);
+                    textViewNoTournaments.setVisibility(View.GONE);
 
-                    for (DocumentSnapshot document : querySnapshot) {
+                    for (DocumentSnapshot document : snapshot) {
 
-                        String name = document.getString("name");
-                        String description = document.getString("description");
-                        String category = document.getString("category");
-                        String difficulty = document.getString("difficulty");
-                        String startDate = document.getString("startDate");
-                        String endDate = document.getString("endDate");
+                        String tournamentId = document.getId();
 
                         LinearLayout card = new LinearLayout(this);
                         card.setOrientation(LinearLayout.VERTICAL);
                         card.setPadding(24, 24, 24, 24);
+                        card.setBackgroundColor(0xFFECEFF1);
 
-                        LinearLayout.LayoutParams cardParams =
+                        LinearLayout.LayoutParams params =
                                 new LinearLayout.LayoutParams(
                                         LinearLayout.LayoutParams.MATCH_PARENT,
                                         LinearLayout.LayoutParams.WRAP_CONTENT
                                 );
 
-                        cardParams.setMargins(0, 0, 0, 24);
-                        card.setLayoutParams(cardParams);
-
-                        card.setBackgroundColor(0xFFECEFF1);
+                        params.setMargins(0, 0, 0, 24);
+                        card.setLayoutParams(params);
 
                         TextView title = new TextView(this);
-                        title.setText(name != null ? name : "Untitled");
+                        title.setText(safe(document.getString("name")));
                         title.setTextSize(20);
                         title.setTextColor(0xFF111111);
-                        title.setTypeface(null, android.graphics.Typeface.BOLD);
+                        title.setTypeface(null,
+                                android.graphics.Typeface.BOLD);
 
                         TextView details = new TextView(this);
-
                         details.setText(
-                                "Description: " + safe(description) +
-                                        "\nCategory: " + safe(category) +
-                                        "\nDifficulty: " + safe(difficulty) +
-                                        "\nStart Date: " + safe(startDate) +
-                                        "\nEnd Date: " + safe(endDate)
+                                "Description: " +
+                                        safe(document.getString("description")) +
+                                        "\nCategory: " +
+                                        safe(document.getString("category")) +
+                                        "\nDifficulty: " +
+                                        safe(document.getString("difficulty")) +
+                                        "\nStart Date: " +
+                                        safe(document.getString("startDate")) +
+                                        "\nEnd Date: " +
+                                        safe(document.getString("endDate"))
                         );
 
-                        details.setTextSize(15);
                         details.setTextColor(0xFF333333);
-                        details.setPadding(0, 12, 0, 0);
+                        details.setTextSize(15);
+                        details.setPadding(0, 12, 0, 12);
+
+                        Button editButton = new Button(this);
+                        editButton.setText("Edit");
+
+                        editButton.setOnClickListener(v -> {
+                            Intent intent = new Intent(
+                                    this,
+                                    EditTournamentActivity.class
+                            );
+
+                            intent.putExtra("tournamentId", tournamentId);
+                            startActivity(intent);
+                        });
+
+                        Button deleteButton = new Button(this);
+                        deleteButton.setText("Delete");
+
+                        deleteButton.setOnClickListener(v ->
+                                confirmDelete(tournamentId));
 
                         card.addView(title);
                         card.addView(details);
+                        card.addView(editButton);
+                        card.addView(deleteButton);
 
                         tournamentContainer.addView(card);
                     }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this,
-                            "Failed to load tournaments: " + e.getMessage(),
+                            "Failed to load tournaments: " +
+                                    e.getMessage(),
                             Toast.LENGTH_LONG).show();
                 });
+    }
+
+    private void confirmDelete(String tournamentId) {
+
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Tournament")
+                .setMessage(
+                        "Are you sure you want to delete this tournament?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+
+                    firestore.collection("tournaments")
+                            .document(tournamentId)
+                            .delete()
+                            .addOnSuccessListener(unused -> {
+                                Toast.makeText(this,
+                                        "Tournament deleted",
+                                        Toast.LENGTH_SHORT).show();
+
+                                loadTournaments();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this,
+                                        "Delete failed: " + e.getMessage(),
+                                        Toast.LENGTH_LONG).show();
+                            });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private String safe(String value) {
