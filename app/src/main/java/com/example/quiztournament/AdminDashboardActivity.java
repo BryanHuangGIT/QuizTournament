@@ -18,6 +18,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private Button buttonCreateTournament;
     private Button buttonViewTournaments;
+    private Button buttonTestOpenTDB;
     private Button buttonLogout;
 
     @Override
@@ -34,11 +35,16 @@ public class AdminDashboardActivity extends AppCompatActivity {
         buttonViewTournaments =
                 findViewById(R.id.buttonViewTournaments);
 
+        buttonTestOpenTDB =
+                findViewById(R.id.buttonTestOpenTDB);
+
         buttonLogout =
                 findViewById(R.id.buttonLogout);
 
+        // Disable admin buttons until role verification succeeds
         buttonCreateTournament.setEnabled(false);
         buttonViewTournaments.setEnabled(false);
+        buttonTestOpenTDB.setEnabled(false);
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
 
@@ -47,6 +53,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             return;
         }
 
+        // Verify administrator role from Firestore
         firestore.collection("users")
                 .document(user.getUid())
                 .get()
@@ -56,38 +63,67 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
                         buttonCreateTournament.setEnabled(true);
                         buttonViewTournaments.setEnabled(true);
+                        buttonTestOpenTDB.setEnabled(true);
 
                     } else {
 
-                        Toast.makeText(this,
+                        Toast.makeText(
+                                this,
                                 "Administrator access required",
-                                Toast.LENGTH_LONG).show();
+                                Toast.LENGTH_LONG
+                        ).show();
 
+                        firebaseAuth.signOut();
                         redirectToHome();
                     }
                 })
                 .addOnFailureListener(e -> {
 
-                    Toast.makeText(this,
+                    Toast.makeText(
+                            this,
                             "Unable to verify administrator",
-                            Toast.LENGTH_LONG).show();
+                            Toast.LENGTH_LONG
+                    ).show();
 
                     redirectToHome();
                 });
 
+        // Create Tournament
         buttonCreateTournament.setOnClickListener(v -> {
-            startActivity(new Intent(
+
+            Intent intent = new Intent(
                     AdminDashboardActivity.this,
-                    CreateTournamentActivity.class));
+                    CreateTournamentActivity.class
+            );
+
+            startActivity(intent);
         });
 
+        // View Tournaments
         buttonViewTournaments.setOnClickListener(v -> {
-            startActivity(new Intent(
+
+            Intent intent = new Intent(
                     AdminDashboardActivity.this,
-                    ViewTournamentsActivity.class));
+                    ViewTournamentsActivity.class
+            );
+
+            startActivity(intent);
         });
 
+        // Test OpenTDB API
+        buttonTestOpenTDB.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    AdminDashboardActivity.this,
+                    OpenTDBTestActivity.class
+            );
+
+            startActivity(intent);
+        });
+
+        // Logout
         buttonLogout.setOnClickListener(v -> {
+
             firebaseAuth.signOut();
             redirectToHome();
         });
