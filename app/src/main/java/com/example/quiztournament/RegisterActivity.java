@@ -106,14 +106,19 @@ public class RegisterActivity extends AppCompatActivity {
                                     buttonRegister.setEnabled(true);
 
                                     Toast.makeText(this,
-                                            "Registration successful",
-                                            Toast.LENGTH_SHORT).show();
+                                            "Registration successful! Please log in.",
+                                            Toast.LENGTH_LONG).show();
 
+                                    // Sign out the newly registered user
+                                    firebaseAuth.signOut();
+
+                                    // Redirect to Home Page
                                     Intent intent = new Intent(
                                             RegisterActivity.this,
-                                            PlayerDashboardActivity.class
+                                            MainActivity.class
                                     );
 
+                                    // Clear previous activities
                                     intent.addFlags(
                                             Intent.FLAG_ACTIVITY_NEW_TASK |
                                                     Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -122,6 +127,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     startActivity(intent);
                                     finish();
                                 })
+
                                 .addOnFailureListener(e -> {
 
                                     buttonRegister.setEnabled(true);
