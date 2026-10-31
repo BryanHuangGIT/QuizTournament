@@ -1,5 +1,6 @@
 package com.example.quiztournament;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -188,14 +189,14 @@ public class PlayerTournamentsActivity extends AppCompatActivity {
 
         playButton.setOnClickListener(v -> {
 
-            Toast.makeText(this,
-                    "Quiz functionality will be added next!",
-                    Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(
+                    PlayerTournamentsActivity.this,
+                    QuizActivity.class
+            );
 
-            // Later:
-            // Intent intent = new Intent(this, QuizActivity.class);
-            // intent.putExtra("tournamentId", tournamentId);
-            // startActivity(intent);
+            intent.putExtra("tournamentId", tournamentId);
+
+            startActivity(intent);
         });
 
         card.addView(title);
